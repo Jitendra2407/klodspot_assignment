@@ -1,7 +1,7 @@
 "use client";
 import { Bell, ChevronDown } from "lucide-react";
 
-const Header = () => {
+const Header = ({ onNotificationClick }) => {
   return (
     <header className="h-16 bg-white flex items-center justify-between px-6 shadow-sm z-10 sticky top-0">
       {/* Left: Branding / Context */}
@@ -23,7 +23,10 @@ const Header = () => {
         </div>
 
         {/* Notifications */}
-        <button className="text-gray-500 hover:text-gray-700 relative">
+        <button 
+          onClick={onNotificationClick}
+          className="text-gray-500 hover:text-gray-700 relative outline-none focus:text-gray-900"
+        >
           <Bell size={20} />
           {/* Notification Dot */}
           <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2"></span>
