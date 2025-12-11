@@ -9,21 +9,44 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-
-const data = [
-  { time: "09:00", value: 120 },
-  { time: "10:00", value: 300 },
-  { time: "11:00", value: 450 },
-  { time: "12:00", value: 800 },
-  { time: "13:00", value: 750 },
-  { time: "14:00", value: 600 },
-  { time: "15:00", value: 550 },
-  { time: "16:00", value: 700 },
-  { time: "17:00", value: 850 }, // Connects to "Live"
-  { time: "18:00", value: 0 },   // Future
-];
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
 
 const OccupancyChart = () => {
+  const [mounted, setMounted] = useState(false);
+  const [data, setData] = useState([
+    { time: "09:00", value: 120 },
+    { time: "10:00", value: 300 },
+    { time: "11:00", value: 450 },
+    { time: "12:00", value: 800 },
+    { time: "13:00", value: 750 },
+    { time: "14:00", value: 600 },
+    { time: "15:00", value: 550 },
+    { time: "16:00", value: 700 },
+    { time: "17:00", value: 850 },
+    { time: "18:00", value: 0 },
+  ]);
+
+  useEffect(() => {
+    setMounted(true);
+    const fetchData = async () => {
+      try {
+        const result = await api.getOccupancy();
+        if (result && Array.isArray(result)) {
+            // Assuming result matches { time, value } structure
+            setData(result);
+        } else if (result && result.data) {
+            setData(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch occupancy chart data", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (!mounted) return <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8 h-80 flex items-center justify-center">Loading Chart...</div>;
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
       <div className="flex items-center justify-between mb-6">

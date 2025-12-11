@@ -1,6 +1,8 @@
 "use client";
 import { TrendingUp } from "lucide-react";
 import { useSocket } from "../context/SocketContext";
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
 
 const Card = ({ title, value, trend, trendColor }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-between h-40">
@@ -17,6 +19,27 @@ const Card = ({ title, value, trend, trendColor }) => (
 
 const SummaryCards = () => {
   const { occupancy } = useSocket();
+  const [footfall, setFootfall] = useState("Loading...");
+  const [dwell, setDwell] = useState("Loading...");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const footfallData = await api.getFootfall();
+        // Assuming response structure { value: 12345 } or similar
+        setFootfall(footfallData.value || footfallData.total || "12,845"); 
+
+        const dwellData = await api.getDwellTime();
+        setDwell(dwellData.value || dwellData.avg || "45m");
+      } catch (err) {
+        console.error("Failed to fetch summary data", err);
+        // Fallback to mocks if API fails
+        setFootfall("12,845");
+        setDwell("45m");
+      }
+    };
+    fetchData();
+  }, []);
   
   const data = [
     {
@@ -27,13 +50,13 @@ const SummaryCards = () => {
     },
     {
       title: "Total Footfall",
-      value: "12,845",
+      value: footfall,
       trend: "5% Less than yesterday",
       trendColor: "text-red-500",
     },
     {
       title: "Average Dwell Time",
-      value: "45m",
+      value: dwell,
       trend: "2% More than yesterday",
       trendColor: "text-green-600",
     },

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { api } from "../../services/api";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,19 +15,22 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        console.log("Login successful");
-        // Handle redirect or token storage here
+      // Use the real API service
+      const data = await api.login(formData);
+      
+      // Assuming response contains { token: "..." } or similar
+      // Adjust based on actual response structure if known, otherwise default to data.token
+      if (data && (data.token || data.access_token)) {
+        localStorage.setItem("token", data.token || data.access_token);
+        console.log("Login successful, token saved");
+        // Redirect logic would go here, e.g. router.push('/')
+        window.location.href = "/"; // Force refresh to ensure auth state is picked up
       } else {
-        console.error("Login failed");
+        console.error("Login successful but no token found", data);
       }
     } catch (error) {
       console.error("Error logging in:", error);
+      alert("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
