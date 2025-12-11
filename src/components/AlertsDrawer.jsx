@@ -1,40 +1,11 @@
 "use client";
 import React from "react";
 import { X, AlertTriangle, AlertCircle, Info } from "lucide-react";
-
-// Mock Data
-const alerts = [
-  {
-    id: 1,
-    time: "March 03 10:12",
-    title: "Ahmad Entered",
-    subtitle: "Zone A",
-    type: "high",
-  },
-  {
-    id: 2,
-    time: "March 03 10:05",
-    title: "Overcrowding Detected",
-    subtitle: "Zone B - Capacity > 90%",
-    type: "medium",
-  },
-  {
-    id: 3,
-    time: "March 03 09:45",
-    title: "System Maintenance",
-    subtitle: "Scheduled for tonight",
-    type: "low",
-  },
-  {
-    id: 4,
-    time: "March 03 09:30",
-    title: "Unauthorized Access",
-    subtitle: "Zone C - Back Gate",
-    type: "high",
-  },
-];
+import { useSocket } from "../context/SocketContext";
 
 const AlertsDrawer = ({ isOpen, onClose }) => {
+  const { alerts } = useSocket();
+
   return (
     <>
       {/* Backdrop */}

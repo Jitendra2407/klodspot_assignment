@@ -1,7 +1,10 @@
 "use client";
 import { Bell, ChevronDown } from "lucide-react";
+import { useSocket } from "../context/SocketContext";
 
 const Header = ({ onNotificationClick }) => {
+  const { hasUnread } = useSocket();
+
   return (
     <header className="h-16 bg-white flex items-center justify-between px-6 shadow-sm z-10 sticky top-0">
       {/* Left: Branding / Context */}
@@ -29,7 +32,9 @@ const Header = ({ onNotificationClick }) => {
         >
           <Bell size={20} />
           {/* Notification Dot */}
-          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2"></span>
+          {hasUnread && (
+            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2"></span>
+          )}
         </button>
 
         {/* User Avatar */}

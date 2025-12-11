@@ -1,5 +1,6 @@
 "use client";
 import { TrendingUp } from "lucide-react";
+import { useSocket } from "../context/SocketContext";
 
 const Card = ({ title, value, trend, trendColor }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-between h-40">
@@ -15,10 +16,12 @@ const Card = ({ title, value, trend, trendColor }) => (
 );
 
 const SummaryCards = () => {
+  const { occupancy } = useSocket();
+  
   const data = [
     {
       title: "Realtime Occupancy",
-      value: "452",
+      value: occupancy, // Live data
       trend: "10% More than yesterday",
       trendColor: "text-green-600",
     },
