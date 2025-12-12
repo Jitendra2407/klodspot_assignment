@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { X, AlertTriangle, AlertCircle, Info } from "lucide-react";
+import { X, MapPin } from "lucide-react";
 import { useSocket } from "../context/SocketContext";
 
 const AlertsDrawer = ({ isOpen, onClose }) => {
@@ -58,16 +58,40 @@ const AlertsDrawer = ({ isOpen, onClose }) => {
             return (
               <div 
                 key={alert.id} 
-                className={`p-4 rounded-lg border ${borderClass} ${bgClass}`}
+                className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
               >
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-gray-500 font-medium">{alert.time}</span>
-                  <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${badgeClass}`}>
-                    {alert.type}
-                  </span>
+                 {/* Left Status Bar based on type */}
+                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                      alert.type === 'high' ? 'bg-red-500' : 
+                      alert.type === 'medium' ? 'bg-orange-500' : 'bg-teal-500'
+                 }`}></div>
+
+                {/* Time */}
+                <div className="text-[11px] text-gray-400 font-medium mb-1">
+                    {alert.time || "Today, 10:00 AM"}
                 </div>
-                <h3 className="text-gray-900 font-semibold mb-1">{alert.title}</h3>
-                <p className="text-sm text-gray-600">{alert.subtitle}</p>
+                
+                {/* Title */}
+                <h3 className="text-gray-900 font-bold text-sm mb-3">
+                    {alert.title || "Alert Title"}
+                </h3>
+
+                {/* Bottom Row: Location + Badge */}
+                <div className="flex items-center justify-between">
+                    {/* Location */}
+                    <div className="flex items-center gap-1 text-gray-500">
+                        <MapPin size={12} />
+                        <span className="text-xs">{alert.subtitle || "Unknown Zone"}</span>
+                    </div>
+
+                    {/* Badge */}
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md text-white capitalize ${
+                        alert.type === 'high' ? 'bg-red-500' : 
+                        alert.type === 'medium' ? 'bg-orange-400' : 'bg-teal-500'
+                    }`}>
+                        {alert.type || "Info"}
+                    </span>
+                </div>
               </div>
             );
           })}

@@ -47,6 +47,7 @@ export const SiteProvider = ({ children }) => {
   const [sites, setSites] = useState([]);
   const [selectedSiteId, setSelectedSiteId] = useState("");
   const [site, setSite] = useState(null);
+  const [anchorDate, setAnchorDate] = useState(new Date()); // Default to local client today, will be TZ adjusted
   const [timeRange, setTimeRange] = useState({ fromUtc: 0, toUtc: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +72,7 @@ export const SiteProvider = ({ children }) => {
         }
       } catch (err) {
         console.error("Failed to load sites", err);
-        if (err.status === 401) {
+        if (err.status === 401 || err.status === 403) {
              localStorage.removeItem("token");
              window.location.href = "/login";
         }
@@ -91,11 +92,21 @@ export const SiteProvider = ({ children }) => {
     
     if (currentSite) {
       const tz = currentSite.timezone || currentSite.timeZone || currentSite.tz || "UTC";
-      // Defaults to TODAY
-      const { startUtc, endUtc } = getZonedDayRangeUtcMillis(tz, new Date());
+      // Compute range based on anchorDate in site's timezone
+      const { startUtc, endUtc } = getZonedDayRangeUtcMillis(tz, anchorDate);
       setTimeRange({ fromUtc: startUtc, toUtc: endUtc });
     }
-  }, [selectedSiteId, sites]);
+  }, [selectedSiteId, sites, anchorDate]);
+
+  const shiftDay = (days) => {
+      const newDate = new Date(anchorDate);
+      newDate.setDate(newDate.getDate() + days);
+      setAnchorDate(newDate);
+  };
+
+  const setToday = () => {
+      setAnchorDate(new Date());
+  };
 
   const value = {
     sites,
@@ -104,7 +115,10 @@ export const SiteProvider = ({ children }) => {
     site,
     fromUtc: timeRange.fromUtc,
     toUtc: timeRange.toUtc,
-    loading
+    loading,
+    anchorDate,
+    shiftDay,
+    setToday
   };
 
   return (

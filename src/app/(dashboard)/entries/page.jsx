@@ -7,7 +7,7 @@ import { useSite } from "../../../context/SiteContext";
 // Mock entries removed. Relying on API.
 
 const EntriesPage = () => {
-  const { selectedSiteId, fromUtc, toUtc } = useSite();
+  const { selectedSiteId, fromUtc, toUtc, anchorDate, shiftDay, setToday } = useSite();
   const [currentPage, setCurrentPage] = useState(1);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,10 +72,30 @@ const EntriesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Crowd Entries</h1>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-          <Calendar size={16} className="text-gray-500" />
-          <span>Today</span>
-        </button>
+        <div className="flex items-center gap-2">
+            <button 
+                onClick={() => shiftDay(-1)}
+                className="p-2 border border-gray-200 rounded-lg shadow-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                title="Yesterday"
+            >
+                <ChevronLeft size={16} />
+            </button>
+            <button 
+                onClick={setToday}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                title="Go to Today"
+            >
+              <Calendar size={16} className="text-gray-500" />
+              <span>{anchorDate.toLocaleDateString()}</span>
+            </button>
+             <button 
+                onClick={() => shiftDay(1)}
+                className="p-2 border border-gray-200 rounded-lg shadow-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                title="Tomorrow"
+            >
+                <ChevronRight size={16} />
+            </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">

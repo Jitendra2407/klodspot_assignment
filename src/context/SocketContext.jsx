@@ -16,13 +16,18 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "https://hiring-dev.internal.kloudspot.com";
+    const token = localStorage.getItem("token");
     const newSocket = io(socketUrl, {
       transports: ["websocket"],
       autoConnect: true,
+      auth: {
+        token: token
+      }
     });
 
     setSocket(newSocket);
 
+    // Event Listeners
     // Event Listeners
     newSocket.on("connect", () => {
       console.log("Socket connected:", newSocket.id);
@@ -35,7 +40,12 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("alert", (newAlert) => {
-      setAlerts((prev) => [newAlert, ...prev]);
+      // Ensure alert has a unique ID for React keys
+      const alertWithId = {
+          ...newAlert,
+          id: newAlert.id || `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      };
+      setAlerts((prev) => [alertWithId, ...prev]);
       setHasUnread(true);
     });
 

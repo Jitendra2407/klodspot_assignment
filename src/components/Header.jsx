@@ -1,9 +1,11 @@
 "use client";
 import { Bell, ChevronDown, Menu } from "lucide-react";
+import { useSite } from "../context/SiteContext";
 import { useSocket } from "../context/SocketContext";
 
 const Header = ({ onNotificationClick, onMenuClick, isSidebarOpen }) => {
   const { hasUnread } = useSocket();
+  const { sites, selectedSiteId, setSelectedSiteId } = useSite();
 
   return (
     <header className="h-16 bg-white flex items-center justify-between px-6 shadow-sm z-10 sticky top-0">
@@ -17,9 +19,19 @@ const Header = ({ onNotificationClick, onMenuClick, isSidebarOpen }) => {
         <div className="flex items-center gap-2">
             <span className="text-gray-500 font-medium">Crowd Solutions</span>
             <span className="text-gray-300">|</span>
-            <div className="flex items-center gap-1 font-semibold cursor-pointer hover:text-black">
-              <span>Avenue Mall</span>
-              <ChevronDown size={16} />
+            <div className="flex items-center gap-1 font-semibold cursor-pointer hover:text-black relative">
+              <select 
+                value={selectedSiteId}
+                onChange={(e) => setSelectedSiteId(e.target.value)}
+                className="appearance-none bg-transparent pr-6 py-1 focus:outline-none cursor-pointer font-semibold text-gray-700 hover:text-black"
+              >
+                {sites.map(site => (
+                   <option key={site.id || site.siteId || site._id} value={site.id || site.siteId || site._id}>
+                      {site.name || site.siteName || "Unknown Site"}
+                   </option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="absolute right-0 pointer-events-none text-gray-500" />
             </div>
         </div>
       </div>
