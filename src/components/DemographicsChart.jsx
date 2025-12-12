@@ -34,7 +34,8 @@ const DemographicsChart = () => {
     setMounted(true);
     const fetchData = async () => {
       try {
-        const result = await api.getDemographics();
+        const token = localStorage.getItem("token");
+        const result = await api.getDemographics(token);
         // Assuming result structure { male: 55, female: 45, history: [...] }
         if (result) {
             if (result.male) setMalePercentage(result.male);

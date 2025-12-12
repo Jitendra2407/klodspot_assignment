@@ -1,19 +1,26 @@
 "use client";
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, Menu } from "lucide-react";
 import { useSocket } from "../context/SocketContext";
 
-const Header = ({ onNotificationClick }) => {
+const Header = ({ onNotificationClick, onMenuClick, isSidebarOpen }) => {
   const { hasUnread } = useSocket();
 
   return (
     <header className="h-16 bg-white flex items-center justify-between px-6 shadow-sm z-10 sticky top-0">
       {/* Left: Branding / Context */}
-      <div className="flex items-center gap-2 text-gray-700">
-        <span className="text-gray-500 font-medium">Crowd Solutions</span>
-        <span className="text-gray-300">|</span>
-        <div className="flex items-center gap-1 font-semibold cursor-pointer hover:text-black">
-          <span>Avenue Mall</span>
-          <ChevronDown size={16} />
+      <div className="flex items-center gap-4 text-gray-700">
+        {!isSidebarOpen && (
+          <button onClick={onMenuClick} className="p-1 hover:bg-gray-100 rounded-md transition-colors outline-none focus:ring-2 focus:ring-teal-500">
+            <Menu size={20} className="text-gray-500" />
+          </button>
+        )}
+        <div className="flex items-center gap-2">
+            <span className="text-gray-500 font-medium">Crowd Solutions</span>
+            <span className="text-gray-300">|</span>
+            <div className="flex items-center gap-1 font-semibold cursor-pointer hover:text-black">
+              <span>Avenue Mall</span>
+              <ChevronDown size={16} />
+            </div>
         </div>
       </div>
 

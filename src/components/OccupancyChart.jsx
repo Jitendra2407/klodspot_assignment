@@ -31,7 +31,8 @@ const OccupancyChart = () => {
     setMounted(true);
     const fetchData = async () => {
       try {
-        const result = await api.getOccupancy();
+        const token = localStorage.getItem("token"); // Explicitly get token
+        const result = await api.getOccupancy(token); // Pass token to API
         if (result && Array.isArray(result)) {
             // Assuming result matches { time, value } structure
             setData(result);

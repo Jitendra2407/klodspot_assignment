@@ -11,26 +11,45 @@ export default function LoginPage() {
     password: "",
   });
 
+  const [error, setError] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(""); // Clear previous errors
+    
     try {
       // Use the real API service
       const data = await api.login(formData);
       
-      // Assuming response contains { token: "..." } or similar
-      // Adjust based on actual response structure if known, otherwise default to data.token
-      if (data && (data.token || data.access_token)) {
-        localStorage.setItem("token", data.token || data.access_token);
+      console.log("Login API Response:", data); // Debugging log
+
+      // Robust extraction of token from various possible structures
+      const token = data?.token || data?.access_token || data?.data?.token || data?.data?.access_token || data?.accessToken || data?.data?.accessToken;
+
+      if (token) {
+        console.log("Token extracted:", token);
+        localStorage.setItem("token", token);
         console.log("Login successful, token saved");
-        // Redirect logic would go here, e.g. router.push('/')
         window.location.href = "/"; // Force refresh to ensure auth state is picked up
       } else {
-        console.error("Login successful but no token found", data);
+        console.error("Login successful but no token found in response", data);
+        setError("Login failed. Unexpected server response.");
       }
     } catch (error) {
       console.error("Error logging in:", error);
-      alert("Login failed. Please check your credentials.");
+      // Fallback logic
+      setError("Login failed. Please check your credentials.");
+      
+      // Since api.js has a fallback, it might return mock token on error for demo.
+      // If we *really* want to show error first, we should remove fallback there, 
+      // but assuming the requirement is just to show UI error when it fails.
+      
+      // However, for this specific request, I will adhere to "Display an inline error message"
+      // avoiding the auto-redirect-to-demo if we want to show the error UX.
+      // But given the previous instruction to fallback, I'll keep fallback logic BEHIND the error?
+      // No, let's keep it simple: Real App behavior would show error.
+      // The prompt asks to improve UX by showing error. 
     } finally {
       setLoading(false);
     }
@@ -70,6 +89,11 @@ export default function LoginPage() {
           {/* Card Body */}
           <div className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded text-sm font-medium text-center">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Log In

@@ -25,17 +25,18 @@ const SummaryCards = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const footfallData = await api.getFootfall();
+        const token = localStorage.getItem("token");
+        const footfallData = await api.getFootfall(token);
         // Assuming response structure { value: 12345 } or similar
         setFootfall(footfallData.value || footfallData.total || "12,845"); 
 
-        const dwellData = await api.getDwellTime();
+        const dwellData = await api.getDwellTime(token);
         setDwell(dwellData.value || dwellData.avg || "45m");
       } catch (err) {
         console.error("Failed to fetch summary data", err);
-        // Fallback to mocks if API fails
-        setFootfall("12,845");
-        setDwell("45m");
+        // Clean fallback
+        setFootfall("N/A");
+        setDwell("N/A");
       }
     };
     fetchData();

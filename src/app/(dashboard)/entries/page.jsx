@@ -33,12 +33,13 @@ const EntriesPage = () => {
     const fetchEntries = async () => {
       setLoading(true);
       try {
-        const result = await api.getEntries(currentPage);
+        const token = localStorage.getItem("token");
+        const result = await api.getEntries(currentPage, 10, token); // Pass token handling pagination args
         const entriesList = Array.isArray(result) ? result : (result.data || []);
         setEntries(entriesList.length > 0 ? entriesList : mockEntries); 
       } catch (error) {
         console.error("Failed to fetch entries", error);
-        setEntries(mockEntries);
+        setEntries([]);
       } finally {
         setLoading(false);
       }
@@ -81,13 +82,13 @@ const EntriesPage = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Sex</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Entry</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Exit</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Dwell Time</th>
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Sex</th>
+                <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Entry</th>
+                <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Exit</th>
+                <th className="px-6 py-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Dwell Time</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -111,6 +112,56 @@ const EntriesPage = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination Logic */}
+        <div className="flex items-center justify-center p-6 border-t border-gray-100">
+          <div className="flex items-center gap-2">
+            <button 
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1 || loading}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            {/* Hardcoded visual pagination to match design 1 2 3 ... 5 */}
+            <button 
+              className={`w-8 h-8 flex items-center justify-center rounded-md font-bold text-sm ${currentPage === 1 ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50'}`} 
+              onClick={() => setCurrentPage(1)}
+            >
+              1
+            </button>
+            <button 
+              className={`w-8 h-8 flex items-center justify-center rounded-md font-bold text-sm ${currentPage === 2 ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50'}`} 
+              onClick={() => setCurrentPage(2)}
+            >
+              2
+            </button>
+            <button 
+              className={`w-8 h-8 flex items-center justify-center rounded-md font-bold text-sm ${currentPage === 3 ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50'}`} 
+              onClick={() => setCurrentPage(3)}
+            >
+              3
+            </button>
+            
+            <span className="text-gray-400 text-sm">...</span>
+
+             <button 
+              className={`w-8 h-8 flex items-center justify-center rounded-md font-bold text-sm ${currentPage === 5 ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50'}`} 
+              onClick={() => setCurrentPage(5)}
+            >
+              5
+            </button>
+
+            <button 
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setCurrentPage(p => p + 1)}
+                disabled={loading}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
