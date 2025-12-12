@@ -12,27 +12,32 @@ import {
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { useSite } from "../context/SiteContext";
+import { useSocket } from "../context/SocketContext";
 
 const OccupancyChart = () => {
   const { selectedSiteId, fromUtc, toUtc } = useSite();
+  const { occupancy } = useSocket();
   const [mounted, setMounted] = useState(false);
   const [data, setData] = useState([]);
+  const [lastTime, setLastTime] = useState(null);
 
   useEffect(() => {
     setMounted(true);
     const fetchData = async () => {
       if (!selectedSiteId || !fromUtc) return;
       try {
-        const token = localStorage.getItem("token"); // Explicitly get token
-        const result = await api.getOccupancy({ siteId: selectedSiteId, fromUtc, toUtc }, token); // Pass token to API
+        const token = localStorage.getItem("token");
+        const result = await api.getOccupancy({ siteId: selectedSiteId, fromUtc, toUtc }, token);
         if (result && Array.isArray(result.buckets)) {
             const mappedData = result.buckets.map(item => ({
                 time: new Date(item.utc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
                 value: Math.round(item.avg || item.count || 0)
             }));
             setData(mappedData);
+            if (mappedData.length > 0) {
+              setLastTime(mappedData[mappedData.length - 1].time);
+            }
         } else if (result && Array.isArray(result)) {
-             // Fallback
              setData(result);
         }
       } catch (error) {
@@ -41,6 +46,33 @@ const OccupancyChart = () => {
     };
     fetchData();
   }, [selectedSiteId, fromUtc, toUtc]);
+
+  // Sync with live occupancy
+  useEffect(() => {
+    if (occupancy !== null && data.length > 0) {
+        const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        
+        setData(prevData => {
+            const lastPoint = prevData[prevData.length - 1];
+            // If the last point is less than a minute ago, update it. Otherwise push new.
+            // Simplified: just update the last point to match "Live" or append if significant time gap. 
+            // For this UI, users expect the graph end to match the big number card.
+            // We'll replace/append the "Current" point.
+            
+            const newData = [...prevData];
+            // Check if last point is "recent" (e.g. same minute string)
+            if (lastPoint && lastPoint.time === nowTime) {
+                newData[newData.length - 1] = { ...lastPoint, value: occupancy };
+            } else {
+                newData.push({ time: nowTime, value: occupancy });
+            }
+            // Keep graph from growing infinitely, maybe limit window? 
+            // API returns buckets, we just append 'live'.
+            setLastTime(nowTime);
+            return newData;
+        });
+    }
+  }, [occupancy]);
 
   if (!mounted) return <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8 h-80 flex items-center justify-center">Loading Chart...</div>;
 
@@ -90,7 +122,7 @@ const OccupancyChart = () => {
               strokeWidth={2}
             />
             <ReferenceLine
-              x="17:00"
+              x={lastTime}
               stroke="#ef4444"
               strokeDasharray="3 3"
               label={{ position: 'top', value: 'LIVE', fill: '#ef4444', fontSize: 12, fontWeight: 'bold' }}

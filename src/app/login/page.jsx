@@ -46,54 +46,56 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Side - Hero / Welcome */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80')",
-          }}
-        >
-          <div className="absolute inset-0 bg-slate-900/50 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
-        </div>
-        <div className="relative z-10 w-full flex items-center justify-center p-12">
-          <h1 className="text-5xl font-bold text-white leading-tight max-w-lg">
-            Welcome to the Crowd Management System
-          </h1>
-        </div>
+    <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-900">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/login_background.png')" }}
+        />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-gray-50 p-6">
-        <div className="w-full max-w-md bg-white shadow-xl overflow-hidden rounded-lg">
+      {/* Content Container */}
+      <div className="relative z-10 w-full max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-12">
+        
+        {/* Left Side - Welcome Text */}
+        <div className="flex-1 w-full lg:max-w-2xl text-center lg:text-left text-white">
+          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 drop-shadow-md">
+            Welcome to the<br />
+            Crowd Management System
+          </h1>
+        </div>
+
+        {/* Right Side - Login Form */}
+        <div className="w-full max-w-md bg-white shadow-2xl rounded-lg overflow-hidden">
           {/* Card Header */}
-          <div className="bg-slate-800 p-6 text-center">
-            <h2 className="text-2xl font-bold text-white tracking-wider">
-              Kloudspot
+          <div className="bg-teal-900/90 p-6 text-center">
+            <h2 className="text-2xl font-bold text-white tracking-wider flex items-center justify-center gap-2">
+               {/* Icon placeholder if needed, or just text */}
+               Kloudspot
             </h2>
           </div>
 
           {/* Card Body */}
           <div className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded text-sm font-medium text-center">
+                <div className="bg-red-50 text-red-600 p-3 rounded text-sm font-medium text-center border border-red-100">
                   {error}
                 </div>
               )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  Log In *
                 </label>
                 <input
-                  type="email"
+                  type="email" // or text as per screenshot "Parking_solutions" looks like text
                   required
-                  className="w-full border-b border-gray-300 px-2 py-2 focus:border-teal-600 focus:outline-none transition-colors"
-                  placeholder="name@company.com"
-                  value={formData.email}
+                  className="w-full border text-black border-gray-300 rounded px-3 py-2 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none transition-colors"
+                  placeholder="Username"
+                  value={formData.email} // keeping 'email' state key for now, simpler
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
@@ -102,14 +104,14 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
+                  Password *
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     required
-                    className="w-full border-b border-gray-300 px-2 py-2 focus:border-teal-600 focus:outline-none transition-colors pr-10"
-                    placeholder="Enter password"
+                    className="w-full text-black border border-gray-300 rounded px-3 py-2 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none transition-colors pr-10"
+                    placeholder="**********"
                     value={formData.password}
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
@@ -118,9 +120,9 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -128,9 +130,9 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded hover:bg-teal-700 transition-colors focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-70"
+                className="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded hover:bg-teal-700 transition-colors focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-70 mt-2"
               >
-                {loading ? "Logging in..." : "Access Dashboard"}
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
           </div>

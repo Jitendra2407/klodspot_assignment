@@ -31,17 +31,30 @@ const SummaryCards = () => {
       
       try {
         const token = localStorage.getItem("token");
-        const footfallData = await api.getFootfall({ siteId: selectedSiteId, fromUtc, toUtc }, token);
-        // Assuming response structure { value: 12345 } or similar
-        setFootfall(footfallData.value || footfallData.total || "12,845"); 
+        const footfallRes = await api.getFootfall({ siteId: selectedSiteId, fromUtc, toUtc }, token);
+        const ffVal = footfallRes.footfall !== undefined ? footfallRes.footfall : null;
+        setFootfall(ffVal !== null ? ffVal.toLocaleString() : "-"); 
 
-        const dwellData = await api.getDwellTime({ siteId: selectedSiteId, fromUtc, toUtc }, token);
-        setDwell(dwellData.value || dwellData.avg || "45m");
+        const dwellRes = await api.getDwellTime({ siteId: selectedSiteId, fromUtc, toUtc }, token);
+        // API returns avgDwellMinutes (or sometimes avgDwell/avg)
+        const val = dwellRes.avgDwellMinutes !== undefined ? dwellRes.avgDwellMinutes : 
+                   (dwellRes.avgDwell !== undefined ? dwellRes.avgDwell : null);
+        
+        // Format to "08min 30sec"
+        if (val !== null) {
+            const mins = Math.floor(val);
+            const secs = Math.round((val - mins) * 60);
+            const minStr = mins.toString().padStart(2, '0');
+            const secStr = secs.toString().padStart(2, '0');
+            setDwell(`${minStr}min ${secStr}sec`);
+        } else {
+            setDwell("-");
+        }
       } catch (err) {
         console.error("Failed to fetch summary data", err);
         // Clean fallback
-        setFootfall("N/A");
-        setDwell("N/A");
+        setFootfall("-");
+        setDwell("-");
       }
     };
     fetchData();
@@ -69,7 +82,7 @@ const SummaryCards = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {data.map((item) => (
         <Card key={item.title} {...item} />
       ))}

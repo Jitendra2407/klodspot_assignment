@@ -34,8 +34,8 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("live_occupancy", (data) => {
-      // Assuming data is { value: 123 } or just number
-      const newVal = typeof data === "object" ? data.value : data;
+      // Data structure: { zoneOccupancy: 35, genderCount: {...} }
+      const newVal = data.zoneOccupancy !== undefined ? data.zoneOccupancy : (data.value || 0);
       setOccupancy(newVal);
     });
 
