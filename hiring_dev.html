@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics Console</title>
+
+    <style>
+        :root {
+            --bg0: #070a14;
+            --bg1: #0b1024;
+            --card: rgba(255, 255, 255, .06);
+            --card2: rgba(255, 255, 255, .08);
+            --stroke: rgba(255, 255, 255, .12);
+            --text: #e6eaf2;
+            --muted: #a7b0c2;
+            --accent: #7c3aed;
+            /* purple */
+            --accent2: #22c55e;
+            /* green */
+            --warn: #f59e0b;
+            /* amber */
+            --danger: #ef4444;
+            /* red */
+            --radius: 16px;
+            --shadow: 0 18px 50px rgba(0, 0, 0, .45);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
+            color: var(--text);
+            background:
+                radial-gradient(1100px 700px at 20% 10%, rgba(124, 58, 237, .35), transparent 55%),
+                radial-gradient(900px 600px at 85% 20%, rgba(34, 197, 94, .22), transparent 55%),
+                radial-gradient(800px 600px at 55% 95%, rgba(59, 130, 246, .18), transparent 55%),
+                linear-gradient(180deg, var(--bg0), var(--bg1));
+            padding: 28px;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* Top bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px 20px;
+            border-radius: calc(var(--radius) + 4px);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+            border: 1px solid var(--stroke);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: conic-gradient(from 210deg, rgba(124, 58, 237, .9), rgba(34, 197, 94, .75), rgba(59, 130, 246, .8), rgba(124, 58, 237, .9));
+            box-shadow: 0 10px 24px rgba(124, 58, 237, .22);
+        }
+
+        .titleblock h1 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: .3px
+        }
+
+        .titleblock .sub {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 12px
+        }
+
+        .statuspill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--stroke);
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 99px;
+            background: rgba(239, 68, 68, .9);
+            box-shadow: 0 0 0 5px rgba(239, 68, 68, .14);
+        }
+
+        .dot.ok {
+            background: rgba(34, 197, 94, .95);
+            box-shadow: 0 0 0 5px rgba(34, 197, 94, .12);
+        }
+
+        /* Grid layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            border-radius: var(--radius);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .05));
+            border: 1px solid var(--stroke);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .cardhead {
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: rgba(255, 255, 255, .03);
+            border-bottom: 1px solid var(--stroke);
+        }
+
+        .cardhead .h {
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: .3px;
+        }
+
+        .cardbody {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 540px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 12px;
+            background: rgba(2, 6, 23, .55);
+            border: 1px solid rgba(255, 255, 255, .14);
+            color: var(--text);
+            outline: none;
+            transition: .15s ease;
+            font-size: 13px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(124, 58, 237, .65);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, .18);
+        }
+
+        input[disabled] {
+            opacity: .75;
+            background: rgba(2, 6, 23, .35);
+        }
+
+        .btnrow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button {
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .07);
+            color: var(--text);
+            padding: 11px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: .15s ease;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, .09);
+        }
+
+        button.primary {
+            border: none;
+            background: linear-gradient(135deg, rgba(124, 58, 237, .95), rgba(59, 130, 246, .85));
+            box-shadow: 0 10px 22px rgba(124, 58, 237, .22);
+        }
+
+        button.primary:hover {
+            opacity: .95;
+        }
+
+        button.good {
+            border: none;
+            background: linear-gradient(135deg, rgba(34, 197, 94, .9), rgba(16, 185, 129, .75));
+            box-shadow: 0 10px 22px rgba(34, 197, 94, .18);
+        }
+
+        button.warn {
+            border: none;
+            background: linear-gradient(135deg, rgba(245, 158, 11, .95), rgba(251, 191, 36, .75));
+            box-shadow: 0 10px 22px rgba(245, 158, 11, .16);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        /* Command bar */
+        .commandbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--stroke);
+        }
+
+        .commandbar button {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .commandbar button.primary {
+            flex: 1.3;
+        }
+
+        /* Response */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tab {
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            font-size: 12px;
+            color: var(--muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tab.active {
+            color: var(--text);
+            border-color: rgba(124, 58, 237, .6);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, .14);
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            background: rgba(2, 6, 23, .7);
+            border-top: 1px solid rgba(255, 255, 255, .12);
+            color: #a7f3d0;
+            max-height: 520px;
+            overflow: auto;
+            font-size: 12.5px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .smallpill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="topbar">
+            <div class="brand">
+                <div class="logo"></div>
+                <div class="titleblock">
+                    <h1>Analytics Console</h1>
+                    <div class="sub">Timezone-aware analytics tester • clean & fast</div>
+                </div>
+            </div>
+
+            <div class="statuspill" title="Connection status updates after login">
+                <div id="dot" class="dot"></div>
+                <span id="statusText">Not authenticated</span>
+                <span id="tokenHint" class="smallpill">token: none</span>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- LEFT: Config + Site -->
+            <div class="card">
+                <div class="cardhead">
+                    <div class="h">Setup</div>
+                    <div class="smallpill" id="envTag">Environment: Custom</div>
+                </div>
+
+                <div class="cardbody">
+                    <div class="row">
+                        <div>
+                            <label>Backend Domain</label>
+                            <input id="domain" placeholder="https://..." />
+                        </div>
+                        <div>
+                            <label>Email</label>
+                            <input id="email" placeholder="test@test.com" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div>
+                            <label>Password</label>
+                            <input id="password" placeholder="••••••••••" type="password" />
+                        </div>
+                        <div>
+                            <label>Actions</label>
+                            <div class="btnrow">
+                                <button class="primary" onclick="login()">Login</button>
+                                <button onclick="togglePassword()">Show/Hide</button>
+                                <button class="good" onclick="loadSites()">Load Sites</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hint">
+                        Tip: Select a site to auto-fill <b>Site ID</b> + compute <b>Start/End of Day</b> using the
+                        site’s timezone.
+                    </div>
+
+                    <div class="row">
+                        <div>
+                            <label>Select Site</label>
+                            <select id="siteSelect" onchange="onSiteChange()">
+                                <option value="">Select a site</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Timezone</label>
+                            <input id="timezone" disabled />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div>
+                            <label>Site ID</label>
+                            <input id="siteId" disabled />
+                        </div>
+                        <div>
+                            <label>Day Range</label>
+                            <div class="btnrow">
+                                <button class="warn" onclick="setToday()">Today</button>
+                                <button onclick="shiftDay(-1)">Yesterday</button>
+                                <button onclick="shiftDay(+1)">Tomorrow</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div>
+                            <label>Start of Day (UTC ms)</label>
+                            <input id="fromUtc" disabled />
+                        </div>
+                        <div>
+                            <label>End of Day (UTC ms)</label>
+                            <input id="toUtc" disabled />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT: Analytics -->
+            <div class="card">
+                <div class="cardhead">
+                    <div class="h">Analytics Command Bar</div>
+                    <div class="smallpill" id="selectedSiteLabel">No site selected</div>
+                </div>
+
+                <div class="cardbody">
+                    <div class="commandbar">
+                        <button id="occupancy" class="primary" onclick="callAnalytics('occupancy')">Occupancy</button>
+                        <button id="footfall" onclick="callAnalytics('footfall')">Footfall</button>
+                        <button id="dwell" onclick="callAnalytics('dwell')">Dwell</button>
+                        <button id="demographics" onclick="callAnalytics('demographics')">Demographics</button>
+                        <button id="entry-exit" onclick="callAnalytics('entry-exit')">Entry / Exit</button>
+                    </div>
+
+                    <div class="hint">
+                        These calls use <b>siteId</b>, <b>fromUtc</b>, <b>toUtc</b> automatically. Response appears
+                        below.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESPONSE -->
+        <div class="card">
+            <div class="cardhead">
+                <div class="h">Response</div>
+                <div class="tabs">
+                    <div class="tab active" id="tabPretty" onclick="setView('pretty')">Pretty</div>
+                    <div class="tab" id="tabRaw" onclick="setView('raw')">Raw</div>
+                </div>
+            </div>
+            <pre id="response">// Response will appear here</pre>
+        </div>
+
+    </div>
+
+    <script>
+        let JWT = "";
+        let sites = [];
+        let viewMode = "pretty";
+        let previousElemId = "occupancy";
+
+        // Persisted defaults
+        const $ = (id) => document.getElementById(id);
+
+        function initDefaults() {
+            $("domain").value = localStorage.getItem("domain") || "https://hiring-dev.internal.kloudspot.com";
+            $("email").value = localStorage.getItem("email") || "test@test.com";
+            $("password").value = localStorage.getItem("password") || "1234567890";
+            updateEnvTag();
+        }
+
+        function updateEnvTag() {
+            const d = $("domain").value || "";
+            let tag = "Custom";
+            if (d.includes("hiring-dev")) tag = "Hiring Dev";
+            if (d.includes("localhost")) tag = "Local";
+            $("envTag").textContent = `Environment: ${tag}`;
+        }
+
+        function setStatus(ok, token) {
+            const dot = $("dot");
+            const text = $("statusText");
+            const hint = $("tokenHint");
+            if (ok) {
+                dot.classList.add("ok");
+                text.textContent = "Authenticated";
+                hint.textContent = "token: set";
+            } else {
+                dot.classList.remove("ok");
+                text.textContent = "Not authenticated";
+                hint.textContent = "token: none";
+            }
+        }
+
+        function show(data) {
+            if (typeof data === "string") {
+                $("response").textContent = data;
+                return;
+            }
+            if (viewMode === "raw") {
+                $("response").textContent = JSON.stringify(data);
+            } else {
+                $("response").textContent = JSON.stringify(data, null, 2);
+            }
+        }
+
+        function setView(mode) {
+            viewMode = mode;
+            $("tabPretty").classList.toggle("active", mode === "pretty");
+            $("tabRaw").classList.toggle("active", mode === "raw");
+            // re-render current text if it was JSON
+            try {
+                const parsed = JSON.parse($("response").textContent);
+                show(parsed);
+            } catch (_) { }
+        }
+
+        function api(path, method = "GET", body) {
+            const domain = $("domain").value.trim();
+            localStorage.setItem("domain", domain);
+            updateEnvTag();
+
+            return fetch(domain + path, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(JWT ? { Authorization: `Bearer ${JWT}` } : {})
+                },
+                body: body ? JSON.stringify(body) : undefined
+            }).then(async r => {
+                const text = await r.text();
+                try { return JSON.parse(text); } catch { return { raw: text, status: r.status }; }
+            });
+        }
+
+        function togglePassword() {
+            const p = $("password");
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+        async function login() {
+            const email = $("email").value.trim();
+            const password = $("password").value;
+
+            localStorage.setItem("email", email);
+            localStorage.setItem("password", password);
+
+            const res = await api("/api/auth/login", "POST", { email, password });
+            if (res && res.token) {
+                JWT = res.token;
+                setStatus(true, JWT);
+                show(res);
+            } else {
+                setStatus(false);
+                show(res);
+            }
+        }
+
+        async function loadSites() {
+            if (!JWT) return show("⚠ Please login first (token required).");
+            const res = await api("/api/sites");
+            sites = Array.isArray(res) ? res : (res?.data || []);
+            const select = $("siteSelect");
+            select.innerHTML = `<option value="">Select a site</option>`;
+            sites.forEach(s => {
+                const id = s.id || s.siteId || s._id;
+                const name = s.name || s.siteName || s.title || id;
+                const tz = s.timezone || s.timeZone || s.tz || "UTC";
+                const opt = document.createElement("option");
+                opt.value = id;
+                opt.textContent = `${name}  •  ${tz}`;
+                select.appendChild(opt);
+            });
+            show(res);
+        }
+
+        // Correct timezone day boundaries (returns UTC millis)
+        // We compute the UTC instant for local midnight in given IANA timezone.
+        function getZonedDayRangeUtcMillis(tz, anchorDate) {
+            // anchorDate is a JS Date (we treat it as "the day we want" in that timezone)
+            // Strategy:
+            // 1) Take the "YYYY-MM-DD" as seen in the timezone.
+            // 2) Construct a Date from that day at 00:00:00 in UTC, then correct by timezone offset via Intl.
+            const parts = new Intl.DateTimeFormat("en-CA", {
+                timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit"
+            }).formatToParts(anchorDate);
+
+            const y = parts.find(p => p.type === "year").value;
+            const m = parts.find(p => p.type === "month").value;
+            const d = parts.find(p => p.type === "day").value;
+
+            // Start as if it were UTC midnight for that calendar day.
+            const startGuessUtc = new Date(`${y}-${m}-${d}T00:00:00.000Z`);
+
+            // Now find what time that instant is in the timezone, then compute offset difference
+            // We'll compute offset minutes between UTC and tz at that moment.
+            const tzParts = new Intl.DateTimeFormat("en-US", {
+                timeZone: tz,
+                hour12: false,
+                year: "numeric", month: "2-digit", day: "2-digit",
+                hour: "2-digit", minute: "2-digit", second: "2-digit"
+            }).formatToParts(startGuessUtc);
+
+            const hh = +tzParts.find(p => p.type === "hour").value;
+            const mm = +tzParts.find(p => p.type === "minute").value;
+            const ss = +tzParts.find(p => p.type === "second").value;
+
+            // This is the local time at startGuessUtc. We need local midnight, so subtract that local time.
+            const deltaMs = ((hh * 3600) + (mm * 60) + ss) * 1000;
+
+            const startUtc = startGuessUtc.getTime() - deltaMs;
+            const endUtc = startUtc + (24 * 60 * 60 * 1000) - 1;
+
+            return { startUtc, endUtc, y, m, d };
+        }
+
+        let selectedTz = "UTC";
+        let anchorDay = new Date(); // shifts via Yesterday/Tomorrow
+
+        function onSiteChange() {
+            const id = $("siteSelect").value;
+            if (!id) return;
+
+            const site = sites.find(s => (s.id || s.siteId || s._id) === id);
+            if (!site) return show("⚠ Selected site not found in cache.");
+
+            const tz = site.timezone || site.timeZone || site.tz || "UTC";
+            selectedTz = tz;
+
+            $("siteId").value = id;
+            $("timezone").value = tz;
+
+            // reset to "today" when site changes
+            anchorDay = new Date();
+            applyDayRange();
+            $("selectedSiteLabel").textContent = (site.name || site.siteName || id);
+        }
+
+        function applyDayRange() {
+            const { startUtc, endUtc } = getZonedDayRangeUtcMillis(selectedTz, anchorDay);
+            $("fromUtc").value = startUtc;
+            $("toUtc").value = endUtc;
+        }
+
+        function setToday() {
+            if (!$("siteId").value) return show("Select a site first.");
+            anchorDay = new Date();
+            applyDayRange();
+            show({ info: "Day range set", timezone: selectedTz, fromUtc: $("fromUtc").value, toUtc: $("toUtc").value });
+        }
+
+        function shiftDay(delta) {
+            if (!$("siteId").value) return show("Select a site first.");
+            anchorDay = new Date(anchorDay.getTime() + delta * 24 * 60 * 60 * 1000);
+            applyDayRange();
+            show({ info: "Day shifted", deltaDays: delta, timezone: selectedTz, fromUtc: $("fromUtc").value, toUtc: $("toUtc").value });
+        }
+
+        async function callAnalytics(type) {
+            const siteId = $("siteId").value;
+            const fromUtc = $("fromUtc").value;
+            const toUtc = $("toUtc").value;
+            const currentEle = document.getElementById(type);
+            const preveEle = document.getElementById(previousElemId);
+            previousElemId = type;
+
+            preveEle.classList.remove("primary");
+            currentEle.classList.add("primary");
+
+            if (!JWT) return show("⚠ Please login first.");
+            if (!siteId) return show("⚠ Please select a site first.");
+
+            let payload = {
+                siteId,
+                fromUtc,
+                toUtc
+            };
+            if (type === "entry-exit") {
+                payload = {
+                    ...payload, pageNumber: 1,
+                    pageSize: 10
+                }
+            }
+            show({ calling: `/api/analytics/${type}`, payload });
+
+            const res = await api(`/api/analytics/${type}`, "POST", payload);
+            show(res);
+        }
+
+        // Init
+        initDefaults();
+        setStatus(false);
+    </script>
+</body>
+
+</html>

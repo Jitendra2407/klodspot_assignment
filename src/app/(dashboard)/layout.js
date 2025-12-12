@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
 import AlertsDrawer from "../../components/AlertsDrawer";
+import ResponseViewer from "../../components/ResponseViewer";
 import { SocketProvider, useSocket } from "../../context/SocketContext";
+import { SiteProvider } from "../../context/SiteContext";
 
 // Inner component that can safely use the context
 const DashboardContent = ({ children }) => {
@@ -36,6 +38,7 @@ const DashboardContent = ({ children }) => {
         isOpen={isAlertsOpen} 
         onClose={() => setIsAlertsOpen(false)} 
       />
+      <ResponseViewer />
     </div>
   );
 };
@@ -67,8 +70,10 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <SocketProvider>
-      <DashboardContent>{children}</DashboardContent>
-    </SocketProvider>
+    <SiteProvider>
+      <SocketProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </SocketProvider>
+    </SiteProvider>
   );
 }

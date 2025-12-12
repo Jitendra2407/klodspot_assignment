@@ -11,40 +11,36 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
+import { useSite } from "../context/SiteContext";
 
 const OccupancyChart = () => {
+  const { selectedSiteId, fromUtc, toUtc } = useSite();
   const [mounted, setMounted] = useState(false);
-  const [data, setData] = useState([
-    { time: "09:00", value: 120 },
-    { time: "10:00", value: 300 },
-    { time: "11:00", value: 450 },
-    { time: "12:00", value: 800 },
-    { time: "13:00", value: 750 },
-    { time: "14:00", value: 600 },
-    { time: "15:00", value: 550 },
-    { time: "16:00", value: 700 },
-    { time: "17:00", value: 850 },
-    { time: "18:00", value: 0 },
-  ]);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     setMounted(true);
     const fetchData = async () => {
+      if (!selectedSiteId || !fromUtc) return;
       try {
         const token = localStorage.getItem("token"); // Explicitly get token
-        const result = await api.getOccupancy(token); // Pass token to API
-        if (result && Array.isArray(result)) {
-            // Assuming result matches { time, value } structure
-            setData(result);
-        } else if (result && result.data) {
-            setData(result.data);
+        const result = await api.getOccupancy({ siteId: selectedSiteId, fromUtc, toUtc }, token); // Pass token to API
+        if (result && Array.isArray(result.buckets)) {
+            const mappedData = result.buckets.map(item => ({
+                time: new Date(item.utc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+                value: Math.round(item.avg || item.count || 0)
+            }));
+            setData(mappedData);
+        } else if (result && Array.isArray(result)) {
+             // Fallback
+             setData(result);
         }
       } catch (error) {
         console.error("Failed to fetch occupancy chart data", error);
       }
     };
     fetchData();
-  }, []);
+  }, [selectedSiteId, fromUtc, toUtc]);
 
   if (!mounted) return <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8 h-80 flex items-center justify-center">Loading Chart...</div>;
 

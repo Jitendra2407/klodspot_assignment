@@ -6,45 +6,16 @@ const SocketContext = createContext();
 
 export const useSocket = () => useContext(SocketContext);
 
-const initialAlerts = [
-  {
-    id: 1,
-    time: "March 03 10:12",
-    title: "Ahmad Entered",
-    subtitle: "Zone A",
-    type: "high",
-  },
-  {
-    id: 2,
-    time: "March 03 10:05",
-    title: "Overcrowding Detected",
-    subtitle: "Zone B - Capacity > 90%",
-    type: "medium",
-  },
-  {
-    id: 3,
-    time: "March 03 09:45",
-    title: "System Maintenance",
-    subtitle: "Scheduled for tonight",
-    type: "low",
-  },
-  {
-    id: 4,
-    time: "March 03 09:30",
-    title: "Unauthorized Access",
-    subtitle: "Zone C - Back Gate",
-    type: "high",
-  },
-];
+const initialAlerts = [];
 
 export const SocketProvider = ({ children }) => {
-  const [occupancy, setOccupancy] = useState(452); // Default mock value
+  const [occupancy, setOccupancy] = useState(0); // Start at 0, wait for live event
   const [alerts, setAlerts] = useState(initialAlerts);
   const [hasUnread, setHasUnread] = useState(false);
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "https://hiring-dev.internal.kloudspot.com";
     const newSocket = io(socketUrl, {
       transports: ["websocket"],
       autoConnect: true,

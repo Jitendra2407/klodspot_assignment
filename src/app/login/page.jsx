@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -40,16 +40,6 @@ export default function LoginPage() {
       console.error("Error logging in:", error);
       // Fallback logic
       setError("Login failed. Please check your credentials.");
-      
-      // Since api.js has a fallback, it might return mock token on error for demo.
-      // If we *really* want to show error first, we should remove fallback there, 
-      // but assuming the requirement is just to show UI error when it fails.
-      
-      // However, for this specific request, I will adhere to "Display an inline error message"
-      // avoiding the auto-redirect-to-demo if we want to show the error UX.
-      // But given the previous instruction to fallback, I'll keep fallback logic BEHIND the error?
-      // No, let's keep it simple: Real App behavior would show error.
-      // The prompt asks to improve UX by showing error. 
     } finally {
       setLoading(false);
     }
@@ -96,16 +86,16 @@ export default function LoginPage() {
               )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Log In
+                  Email
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   required
                   className="w-full border-b border-gray-300 px-2 py-2 focus:border-teal-600 focus:outline-none transition-colors"
-                  placeholder="Username"
-                  value={formData.username}
+                  placeholder="name@company.com"
+                  value={formData.email}
                   onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
+                    setFormData({ ...formData, email: e.target.value })
                   }
                 />
               </div>

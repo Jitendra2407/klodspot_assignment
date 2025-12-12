@@ -2,41 +2,40 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "../../../services/api";
+import { useSite } from "../../../context/SiteContext";
 
-const mockEntries = [
-  {
-    id: 1,
-    name: "Esther Howard",
-    image: "https://i.pravatar.cc/150?u=1",
-    sex: "Male",
-    entry: "09:00 AM",
-    exit: "10:30 AM",
-    dwell: "1h 30m",
-  },
-  {
-    id: 2,
-    name: "Floyd Miles",
-    image: null,
-    sex: "Female",
-    entry: "09:15 AM",
-    exit: "10:30 AM",
-    dwell: "1h 15m",
-  },
-];
+// Mock entries removed. Relying on API.
 
 const EntriesPage = () => {
+  const { selectedSiteId, fromUtc, toUtc } = useSite();
   const [currentPage, setCurrentPage] = useState(1);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEntries = async () => {
+      if (!selectedSiteId || !fromUtc) return;
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const result = await api.getEntries(currentPage, 10, token); // Pass token handling pagination args
-        const entriesList = Array.isArray(result) ? result : (result.data || []);
-        setEntries(entriesList.length > 0 ? entriesList : mockEntries); 
+        const result = await api.getEntries({ page: currentPage, limit: 10, siteId: selectedSiteId, fromUtc, toUtc }, token); // Pass token handling pagination args
+        // API returns { records: [], totalRecords: N, ... }
+        let entriesList = [];
+        if (result && Array.isArray(result.records)) {
+             entriesList = result.records.map(r => ({
+                 id: r.personId || r.visitorId || Math.random(),
+                 name: r.personName || r.name || "Unknown",
+                 sex: r.gender || r.sex || "-",
+                 entry: r.entryLocal ? new Date(r.entryLocal).toLocaleTimeString() : "-",
+                 exit: r.exitLocal ? new Date(r.exitLocal).toLocaleTimeString() : "-",
+                 dwell: r.dwellMinutes ? `${Math.round(r.dwellMinutes)}m` : "-"
+             }));
+        } else if (Array.isArray(result)) {
+             entriesList = result;
+        } else if (result && result.data) {
+             entriesList = result.data;
+        }
+        setEntries(entriesList); 
       } catch (error) {
         console.error("Failed to fetch entries", error);
         setEntries([]);
@@ -45,7 +44,7 @@ const EntriesPage = () => {
       }
     };
     fetchEntries();
-  }, [currentPage]);
+  }, [currentPage, selectedSiteId, fromUtc, toUtc]);
 
   const Avatar = ({ name, image }) => {
     if (image) {

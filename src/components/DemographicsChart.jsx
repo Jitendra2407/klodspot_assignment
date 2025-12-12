@@ -14,30 +14,45 @@ import {
   Legend,
 } from "recharts";
 import { api } from "../services/api";
+import { useSite } from "../context/SiteContext";
 
 const DemographicsChart = () => {
+  const { selectedSiteId, fromUtc, toUtc } = useSite();
   const [malePercentage, setMalePercentage] = useState(55);
   const [femalePercentage, setFemalePercentage] = useState(45);
   
-  const [data, setData] = useState([
-    { time: "09:00", male: 30, female: 20 },
-    { time: "10:00", male: 50, female: 40 },
-    { time: "11:00", male: 70, female: 60 },
-    { time: "12:00", male: 90, female: 80 },
-    { time: "13:00", male: 85, female: 75 },
-    { time: "14:00", male: 60, female: 70 },
-  ]);
+  const [data, setData] = useState([]);
 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const fetchData = async () => {
+      if (!selectedSiteId || !fromUtc) return;
       try {
         const token = localStorage.getItem("token");
-        const result = await api.getDemographics(token);
+        const result = await api.getDemographics({ siteId: selectedSiteId, fromUtc, toUtc }, token);
         // Assuming result structure { male: 55, female: 45, history: [...] }
-        if (result) {
+        if (result && Array.isArray(result.buckets)) {
+             // Calculate averages for Pie Chart
+             const total = result.buckets.length;
+             let mSum = 0, fSum = 0;
+             const history = result.buckets.map(b => {
+                 mSum += (b.male || 0);
+                 fSum += (b.female || 0);
+                 return {
+                     time: new Date(b.utc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+                     male: b.male || 0,
+                     female: b.female || 0
+                 };
+             });
+             
+             if (total > 0) {
+                 setMalePercentage(Math.round(mSum / total));
+                 setFemalePercentage(Math.round(fSum / total));
+             }
+             setData(history);
+        } else if (result) {
             if (result.male) setMalePercentage(result.male);
             if (result.female) setFemalePercentage(result.female);
             if (result.history) setData(result.history);
@@ -47,7 +62,7 @@ const DemographicsChart = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [selectedSiteId, fromUtc, toUtc]);
 
   const pieData = [
     { name: "Male", value: malePercentage, fill: "#0d9488" }, // teal-600
