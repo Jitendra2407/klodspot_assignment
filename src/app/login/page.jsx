@@ -73,8 +73,7 @@ export default function LoginPage() {
           {/* Card Header */}
           <div className="bg-teal-900/90 p-6 text-center">
             <h2 className="text-2xl font-bold text-white tracking-wider flex items-center justify-center gap-2">
-               {/* Icon placeholder if needed, or just text */}
-               Kloudspot
+               <img src="/kloudspot_logo.png" alt="Kloudspot" className="h-10 w-auto" />
             </h2>
           </div>
 

@@ -20,8 +20,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       {/* Logo Area */}
       <div className="h-16 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-teal-900 font-bold">K</div>
-          <span className="text-xl font-bold tracking-tight">kloudspot</span>
+          <img src="/kloudspot_logo.png" alt="Kloudspot Logo" className="h-8 w-auto" />
         </div>
         <button onClick={onToggle} className="text-gray-400 hover:text-white transition-colors outline-none">
            <Menu size={20} />
